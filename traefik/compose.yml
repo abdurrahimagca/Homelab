@@ -1,0 +1,31 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    container_name: reverse-proxy
+    networks:
+      - traefik-public
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    volumes:
+      - ./acme.json:/etc/traefik/acme.json
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro  
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.homelab-kaleici.space`)"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=cloudflare"
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
+ 
+networks:
+  traefik-public:
+    external: true

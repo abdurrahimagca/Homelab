@@ -1,0 +1,20 @@
+networks:
+  traefik-public:
+    external: true
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    networks:
+      - traefik-public
+    volumes:
+      - ./etc/nginx.conf:/etc/nginx/nginx.conf
+      - ./etc/index.html:/usr/share/nginx/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`homelab-kaleici.space`)"
+      - "traefik.http.routers.nginx.tls=true"
+      - "traefik.http.routers.nginx.tls.certresolver=cloudflare"
+      - "traefik.http.routers.nginx.entrypoints=websecure"
+      - "traefik.http.services.nginx.loadbalancer.server.port=8080"

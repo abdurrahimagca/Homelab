@@ -1,0 +1,36 @@
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: :443
+
+log:
+  level: INFO
+
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: abbdrhm@gmail.com 
+      storage: /etc/traefik/acme.json
+      #caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+      keyType: EC256
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+providers:
+  docker:
+    network: traefik-public
+    exposedByDefault: false
+
+api:
+  dashboard: true
+  insecure: false
